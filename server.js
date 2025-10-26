@@ -24,7 +24,7 @@ mongoose.connect(process.env.MONGO_URI, {
 const gemini_api_key = process.env.API_KEY;
 const googleAI = new GoogleGenerativeAI(gemini_api_key);
 const geminiModel = googleAI.getGenerativeModel({
-  model: "gemini-1.5-flash",
+  model: "gemini-1.5-flash-latest",
 });
 
 // var question = "what is the value of pie in maths ?";
