@@ -1,4 +1,4 @@
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+const { GoogleGenAI } = require("@google/genai");
 require('dotenv').config();
 const express = require('express')
 const mongoose = require('mongoose');
@@ -22,24 +22,10 @@ mongoose.connect(process.env.MONGO_URI, {
   .catch((err) => console.error('MongoDB connection error:', err));
 
 const gemini_api_key = process.env.API_KEY;
-const googleAI = new GoogleGenerativeAI(gemini_api_key);
-const geminiModel = googleAI.getGenerativeModel({
-  model: "gemini-2.5-flash-lite",
-});
+const ai = new GoogleGenAI({ apiKey: gemini_api_key });
 
 // var question = "what is the value of pie in maths ?";
 
-// Handle uncaught exceptions
-process.on('uncaughtException', (err) => {
-  console.error('Uncaught Exception:', err);
-  process.exit(1); // Exit the process to avoid undefined behavior
-});
-
-// Handle unhandled promise rejections
-process.on('unhandledRejection', (reason, promise) => {
-  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
-  process.exit(1); // Exit the process to avoid undefined behavior
-});
 
 app.get('/', (req, res) => {
     res.send('Hello World!')
@@ -48,9 +34,11 @@ app.get('/', (req, res) => {
 app.post('/content', async (req, res) => {
     try {
         const { prompt } = req.body;
-        const result = await geminiModel.generateContent(prompt);
-        const response = await result.response;
-        const text = response?.candidates?.[0]?.content?.parts?.[0]?.text;
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash',
+            contents: prompt,
+        });
+        const text = response.text;
         res.json({ result: text }); // Return the translated text directly
     } catch (error) {
         console.error("Error generating content:", error);
